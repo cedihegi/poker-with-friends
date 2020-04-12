@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Poker with friends</title>
+    <link rel="stylesheet" href="style/general.css">
+    <meta charset="UTF-8">
+</head>
+<body>
+    <h1>Welcome</h1>
+
+    <div class="split left">
+        <div class="formdiv">
+            <form  id="auth-form">
+                <input id="namefield" style="width:50%" />
+                <button id="login">login</button>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Container for chat  -->
+    <div class="split right">
+        <div class="chat">
+            <!-- Display the sent and received messages:-->
+            <ul id="events">
+            </ul>
+
+            <!-- Form to enter messages: -->
+            <div class="formdiv">
+                <form id="chat-form">
+                    <input id="chat" style="width: 60%"/>
+                    <button id="send" style="font-size: small;">SEND</button>        
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/authen.js"></script>
+    <script src="socket.io/socket.io.js"></script>
+    <script src="client.js"></script></script>
+
+</body>
+</html>
