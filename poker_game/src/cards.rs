@@ -1,6 +1,5 @@
 use std::cmp::Ordering;
 
-
 #[derive(Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub enum Rank {
     Two = 2,
