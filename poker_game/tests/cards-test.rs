@@ -34,3 +34,8 @@ fn card_orders() {
     assert!(card3 > card4);
     assert_ne!(card1, card4);
 }
+
+#[test]
+fn evaluate_hands() {
+    
+}

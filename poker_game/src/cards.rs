@@ -1,6 +1,6 @@
-use std::cmp::Ordering;
+use std::{cmp::Ordering, str};
 
-#[derive(Eq, PartialEq, Ord, PartialOrd, Debug)]
+#[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone)]
 pub enum Rank {
     Two = 2,
     Three = 3,
@@ -17,7 +17,27 @@ pub enum Rank {
     Ace = 14,
 }
 
-#[derive(Eq, PartialEq, Debug)]
+impl Rank {
+    pub fn to_vec() -> Vec<Rank> {
+        vec![
+            Rank::Two,
+            Rank::Three,
+            Rank::Four,
+            Rank::Five,
+            Rank::Six,
+            Rank::Seven,
+            Rank::Eight,
+            Rank::Nine,
+            Rank::Ten,
+            Rank::Jack,
+            Rank::Queen,
+            Rank::King,
+            Rank::Ace,
+        ]
+    }
+}
+
+#[derive(Eq, PartialEq, Debug, Clone)]
 pub enum Suit {
     Clubs = 1,
     Diamonds = 2,
@@ -25,7 +45,18 @@ pub enum Suit {
     Spades = 4,
 }
 
-#[derive(Eq, Debug)]
+impl Suit {
+    fn to_vec() -> Vec<Suit> {
+        vec![
+            Suit::Clubs,
+            Suit::Diamonds,
+            Suit::Hearts,
+            Suit::Spades,
+        ]
+    }
+}
+
+#[derive(Eq, Debug, Clone)]
 pub struct Card {
     pub suit: Suit,
     pub rank: Rank,
@@ -46,5 +77,20 @@ impl PartialOrd for Card {
 impl PartialEq for Card {
     fn eq(&self, other: &Self) -> bool {
         self.rank == other.rank
+    }
+}
+
+impl Card {
+    pub fn to_vec() -> Vec<Card> {
+        let ranks = Rank::to_vec();
+        let suits = Suit::to_vec();
+        let mut deck = Vec::new();
+        for suit in &suits {
+            for rank in &ranks {
+                let card = Card { suit: suit.clone(), rank: rank.clone() };
+                deck.push(card);
+            }
+        }
+        deck
     }
 }
