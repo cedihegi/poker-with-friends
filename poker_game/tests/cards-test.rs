@@ -1,4 +1,5 @@
-use poker_game::cards;
+use poker_game::{cards, dealer};
+use poker_game::logic::Hand;
 
 #[test]
 fn rank_orders(){
@@ -36,6 +37,33 @@ fn card_orders() {
 }
 
 #[test]
-fn evaluate_hands() {
-    
+fn recognize_royal_flush() {
+    let mut cards = vec![];
+    cards.push(cards::Card::from_tup(2,2));
+    cards.push(cards::Card::from_tup(3,3));
+    for i in 10..15 {
+        cards.push(cards::Card::from_tup(i, 1));
+    }
+
+    let hand = Hand::new(cards);
+    match hand.royal_flush() {
+        Ok(_) => {},
+        _ => panic!()
+    }
+}
+
+#[test]
+fn recognize_straight_flush() {
+    let mut cards = vec![];
+    cards.push(cards::Card::from_tup(2,2));
+    cards.push(cards::Card::from_tup(3,3));
+    for i in 8..13 {
+        cards.push(cards::Card::from_tup(i, 1));
+    }
+
+    let hand = Hand::new(cards);
+    match hand.straight_flush() {
+        Ok(_) => {},
+        _ => panic!()
+    }
 }

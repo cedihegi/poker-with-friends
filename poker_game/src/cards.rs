@@ -1,4 +1,4 @@
-use std::{cmp::Ordering, str};
+use std::cmp::Ordering;
 
 #[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone)]
 pub enum Rank {
@@ -18,22 +18,26 @@ pub enum Rank {
 }
 
 impl Rank {
+    pub fn from_int(val: usize) -> Rank {
+        match val {
+            2 => Rank::Two,
+            3 => Rank::Three,
+            4 => Rank::Four,
+            5 => Rank::Five,
+            6 => Rank::Six,
+            7 => Rank::Seven,
+            8 => Rank::Eight,
+            9 => Rank::Nine,
+            10 => Rank::Ten,
+            11 => Rank::Jack,
+            12 => Rank::Queen,
+            13 => Rank::King,
+            14 => Rank::Ace,
+            _ => panic!(),
+        }
+    }
     pub fn to_vec() -> Vec<Rank> {
-        vec![
-            Rank::Two,
-            Rank::Three,
-            Rank::Four,
-            Rank::Five,
-            Rank::Six,
-            Rank::Seven,
-            Rank::Eight,
-            Rank::Nine,
-            Rank::Ten,
-            Rank::Jack,
-            Rank::Queen,
-            Rank::King,
-            Rank::Ace,
-        ]
+        (2..15).map(|x| Rank::from_int(x)).collect()
     }
 }
 
@@ -46,13 +50,17 @@ pub enum Suit {
 }
 
 impl Suit {
+    pub fn from_int(num: usize) -> Suit {
+        match num {
+            1 => Suit::Clubs,
+            2 => Suit::Diamonds,
+            3 => Suit::Hearts,
+            4 => Suit::Spades,
+            _ => panic!()
+        }
+    }
     fn to_vec() -> Vec<Suit> {
-        vec![
-            Suit::Clubs,
-            Suit::Diamonds,
-            Suit::Hearts,
-            Suit::Spades,
-        ]
+        (1..5).map(Suit::from_int).collect()
     }
 }
 
@@ -81,6 +89,14 @@ impl PartialEq for Card {
 }
 
 impl Card {
+    pub fn from_tup(rank_int: usize, suit_int: usize) -> Card {
+        let rank = Rank::from_int(rank_int);
+        let suit = Suit::from_int(suit_int);
+        Card {
+            rank,
+            suit
+        }
+    }
     pub fn to_vec() -> Vec<Card> {
         let ranks = Rank::to_vec();
         let suits = Suit::to_vec();
