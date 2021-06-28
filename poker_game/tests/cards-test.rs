@@ -70,4 +70,9 @@ fn recognize_straight_flush() {
         Some((Value::Flush(_), _)) => {},
         _ => panic!()
     }
+
+    match hand.evaluate() {
+        (Value::StraightFlush(_), _) => {},
+        _ => panic!()
+    }
 }

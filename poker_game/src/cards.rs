@@ -36,8 +36,8 @@ impl Rank {
             _ => panic!(),
         }
     }
-    pub fn to_int(self) -> usize {
-        self as usize
+    pub fn to_int(&self) -> usize {
+        self.clone() as usize
     }
     pub fn to_vec() -> Vec<Rank> {
         (2..15).map(|x| Rank::from_int(x)).collect()
@@ -62,8 +62,8 @@ impl Suit {
             _ => panic!()
         }
     }
-    pub fn to_int(self) -> usize {
-        self as usize
+    pub fn to_int(&self) -> usize {
+        self.clone() as usize
     }
     fn to_vec() -> Vec<Suit> {
         (1..5).map(Suit::from_int).collect()

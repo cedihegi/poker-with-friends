@@ -1,12 +1,12 @@
 use std::usize;
 
-use crate::cards::{Card, Rank, Suit};
+use crate::cards::{Card, Rank};
 
 pub enum Value {
     RoyalFlush,
-    StraightFlush(Rank), //contains highest card's rank 
-    FourOfKind(Rank), //contains rank of those 4 cards -> can never draw! 
-    FullHouse(Rank, Rank), // contains rank of upper 3 cards and lower 2, but only upper 3 matter for ordering
+    StraightFlush(usize), //contains highest card's rank 
+    FourOfKind(usize), //contains rank of those 4 cards -> can never draw! 
+    FullHouse(usize, usize), // contains rank of upper 3 cards and lower 2, but only upper 3 matter for ordering
     Flush(Vec<Card>), // contains all 5 cards, here it actually matters
     Straight(Rank), // contains highest card of straight
     ThreeOfKind(Rank), // contains rank of triplet, other cards will never matter
@@ -88,6 +88,22 @@ impl Hand {
 
 impl Hand {
     //analyze
+    pub fn evaluate(&self) -> (Value, Vec<Card>) {
+        if let Some(result) = self.top_tier() {
+            return result
+        } else if let Some(result) = self.quad() {
+            return result
+        } else if let Some(result) = self.flush() {
+            return result
+        } else if let Some(result) = self.full_house() {
+            return result
+        }
+
+        
+
+        return (Value::HighCard(vec!()), vec![])
+    } 
+
     pub fn top_tier(&self) -> Option<(Value, Vec<Card>)> {
         for suit in 1..5 {
             match Self::straight_in_vec(&self.matrix[suit]) {
@@ -100,7 +116,7 @@ impl Hand {
                     if start == 14 {
                         return Some((Value::RoyalFlush, cards))
                     } else {
-                        let result = Value::StraightFlush(Rank::from_int(start));
+                        let result = Value::StraightFlush(start);
                         return Some((result, cards))
                     }
                 },
@@ -126,13 +142,38 @@ impl Hand {
                     break;
                 }
             }
-            return Some((Value::FourOfKind(Rank::from_int(quad_rank)), cards))
+            return Some((Value::FourOfKind(quad_rank), cards))
         } 
         None
     }
 
-    pub fn full_house(&self) {
-        unimplemented!()
+    pub fn full_house(&self) -> Option<(Value, Vec<Card>)> {
+        if self.trips.len() >= 1 && self.tuples.len() >= 2 {
+            //there definitely is a full house:
+            let high_trip = self.trips[0];
+            let tup = if self.tuples[0] == high_trip {
+                self.tuples[1]
+            } else {
+                self.tuples[0]
+            };
+
+            let mut cards = vec![];
+            let mut count = 0;
+            for card in &self.cards {
+                let rank = card.rank.to_int();
+                if rank == high_trip || rank == tup {
+                    count += 1;
+                    cards.push(card.clone());
+                }
+                if count == 5 {
+                    break;
+                }
+            }
+
+            Some((Value::FullHouse(high_trip, tup), cards))
+        } else {
+            None
+        }
     }
 
     pub fn flush(&self) -> Option<(Value, Vec<Card>)> {
@@ -190,16 +231,5 @@ impl Hand {
 
 pub fn evaluate(h: &Vec<Card>, community: &Vec<Card>) -> (Value, Vec<Card>) {
     let hand = Hand::new_split(h, community);
-    
-    if let Some(result) = hand.top_tier() {
-        return result
-    } else if let Some(result) = hand.quad() {
-        return result
-    } else if let Some(result) = hand.flush() {
-        return result
-    }
-
-    
-
-    return (Value::HighCard(vec!()), vec![])
+    hand.evaluate()
 }
