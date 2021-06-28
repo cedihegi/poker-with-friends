@@ -1,5 +1,5 @@
-use poker_game::{cards, dealer};
-use poker_game::logic::Hand;
+use poker_game::{cards};
+use poker_game::logic::{Value, Hand};
 
 #[test]
 fn rank_orders(){
@@ -42,12 +42,12 @@ fn recognize_royal_flush() {
     cards.push(cards::Card::from_tup(2,2));
     cards.push(cards::Card::from_tup(3,3));
     for i in 10..15 {
-        cards.push(cards::Card::from_tup(i, 1));
+        cards.push(cards::Card::from_tup(1, i));
     }
 
     let hand = Hand::new(cards);
-    match hand.royal_flush() {
-        Ok(_) => {},
+    match hand.top_tier() {
+        Some((Value::RoyalFlush, _)) => {},
         _ => panic!()
     }
 }
@@ -58,12 +58,16 @@ fn recognize_straight_flush() {
     cards.push(cards::Card::from_tup(2,2));
     cards.push(cards::Card::from_tup(3,3));
     for i in 8..13 {
-        cards.push(cards::Card::from_tup(i, 1));
+        cards.push(cards::Card::from_tup(1, i));
     }
 
     let hand = Hand::new(cards);
-    match hand.straight_flush() {
-        Ok(_) => {},
+    match hand.top_tier() {
+        Some((Value::StraightFlush(_), _)) => {},
+        _ => panic!()
+    }
+    match hand.flush() {
+        Some((Value::Flush(_), _)) => {},
         _ => panic!()
     }
 }

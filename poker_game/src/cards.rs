@@ -36,6 +36,9 @@ impl Rank {
             _ => panic!(),
         }
     }
+    pub fn to_int(self) -> usize {
+        self as usize
+    }
     pub fn to_vec() -> Vec<Rank> {
         (2..15).map(|x| Rank::from_int(x)).collect()
     }
@@ -58,6 +61,9 @@ impl Suit {
             4 => Suit::Spades,
             _ => panic!()
         }
+    }
+    pub fn to_int(self) -> usize {
+        self as usize
     }
     fn to_vec() -> Vec<Suit> {
         (1..5).map(Suit::from_int).collect()
@@ -89,7 +95,7 @@ impl PartialEq for Card {
 }
 
 impl Card {
-    pub fn from_tup(rank_int: usize, suit_int: usize) -> Card {
+    pub fn from_tup(suit_int: usize, rank_int: usize) -> Card {
         let rank = Rank::from_int(rank_int);
         let suit = Suit::from_int(suit_int);
         Card {
@@ -108,5 +114,13 @@ impl Card {
             }
         }
         deck
+    }
+
+    pub fn suit_int(&self) -> usize {
+        self.suit.clone().to_int()
+    }
+
+    pub fn rank_int(&self) -> usize {
+        self.rank.clone().to_int()
     }
 }

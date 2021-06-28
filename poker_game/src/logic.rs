@@ -23,9 +23,9 @@ pub struct Hand {
     cards: Vec<Card>,
     ranks: Vec<usize>,
     matrix: Vec<Vec<bool>>,
-    quads: Option<usize>,
-    trips: usize,
-    tuples: usize,
+    quads: Vec<usize>,
+    trips: Vec<usize>,
+    tuples: Vec<usize>,
 }
 
 impl Hand {
@@ -48,20 +48,20 @@ impl Hand {
         let mut cards_sorted = cards.clone();
         cards_sorted.sort_by(|a, b| b.cmp(a));
 
-        let mut quads = None;
-        let mut trips = 0;
-        let mut tuples = 0;
+        let mut quads = vec![];
+        let mut trips = vec![];
+        let mut tuples = vec![];
 
-        for rank in 2..15 {
+        for rank in (2..15).rev() {
             let quant = ranks[rank];
             if quant == 4 {
-                quads = Some(rank);
+                quads.push(rank);
             }
             if quant >= 3 {
-                trips += 1;
+                trips.push(rank);
             }
             if quant >= 2 {
-                tuples += 1;
+                tuples.push(rank);
             }
         }
         let res = Hand {
@@ -94,7 +94,7 @@ impl Hand {
                 Ok(start) => {
                     let mut cards = vec![];
                     for i in 0..5 {
-                        let card = Card::from_tup(start - i, suit);
+                        let card = Card::from_tup(suit, start - i);
                         cards.push(card);
                     }
                     if start == 14 {
@@ -110,11 +110,13 @@ impl Hand {
         None
     }
 
-    pub fn semi_tier(&self) -> Option<(Value, Vec<Card>)> {
-        if let Some(quad_rank) = self.quads {
+    pub fn quad(&self) -> Option<(Value, Vec<Card>)> {
+        //find fourOfKind
+        if !self.quads.is_empty() {
+            let quad_rank = self.quads[0];
             let mut cards = vec![];
             for i in 1..5 {
-                let card = Card::from_tup(quad_rank, i);
+                let card = Card::from_tup(i, quad_rank);
                 cards.push(card);
             }
             for c in &self.cards {
@@ -125,8 +127,41 @@ impl Hand {
                 }
             }
             return Some((Value::FourOfKind(Rank::from_int(quad_rank)), cards))
+        } 
+        None
+    }
+
+    pub fn full_house(&self) {
+        unimplemented!()
+    }
+
+    pub fn flush(&self) -> Option<(Value, Vec<Card>)> {
+        for i in 1..5 {
+            //now it is bad that the aces are counted twice in the matrix
+            let correction = if self.matrix[i][1] { 1 } else { 0 };
+            let occ: usize = (&self.matrix[i]).into_iter().count() - correction;
+            if occ >= 5 {
+                let mut cards = vec![];
+                let mut count = 0;
+
+                //get the 5 highest cards of this color
+                for j in (2..15).rev() {
+                    let curr = self.matrix[i][j];
+                    if curr {
+                        cards.push(Card::from_tup(i, j));
+                        count += 1;
+                    }
+                    if count >= 5 {
+                        return Some((Value::Flush(cards.clone()), cards))
+                    }
+                }
+            }
         }
         None
+    }
+
+    pub fn three_of_kind(&self) -> Option<(Value, Vec<Card>)> {
+        unimplemented!()
     }
 
 
@@ -158,7 +193,9 @@ pub fn evaluate(h: &Vec<Card>, community: &Vec<Card>) -> (Value, Vec<Card>) {
     
     if let Some(result) = hand.top_tier() {
         return result
-    } else if let Some(result) = hand.semi_tier() {
+    } else if let Some(result) = hand.quad() {
+        return result
+    } else if let Some(result) = hand.flush() {
         return result
     }
 
