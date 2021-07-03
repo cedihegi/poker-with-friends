@@ -7,12 +7,12 @@ pub enum Value {
     StraightFlush(usize), //contains highest card's rank 
     FourOfKind(usize), //contains rank of those 4 cards -> can never draw! 
     FullHouse(usize, usize), // contains rank of upper 3 cards and lower 2, but only upper 3 matter for ordering
-    Flush(Vec<Card>), // contains all 5 cards, here it actually matters
-    Straight(Rank), // contains highest card of straight
-    ThreeOfKind(Rank), // contains rank of triplet, other cards will never matter
-    TwoPair(Rank, Rank, Rank), //contains rank of higher pair, lower pair, and other card
-    Pair(Rank, Vec<Rank>), // Rank of pair, should also contain ranks of the 3 other cards
-    HighCard(Vec<Rank>), // contains ranks of all 5 cards
+    Flush(Vec<usize>), // contains all 5 cards, here it actually matters
+    Straight(usize), // contains highest card of straight
+    ThreeOfKind(usize), // contains rank of triplet, other cards will never matter
+    TwoPair(usize, usize, usize), //contains rank of higher pair, lower pair, and other card
+    Pair(usize, Vec<usize>), // Rank of pair, should also contain ranks of the 3 other cards
+    HighCard(Vec<usize>), // contains ranks of all 5 cards
 }
 
 // How do we evaluate a set of 7 cards? First, what is the result of 
@@ -20,7 +20,7 @@ pub enum Value {
 
 #[derive(Debug)]
 pub struct Hand {
-    cards: Vec<Card>,
+    cards: Vec<Card>, // your cards sorted by rank, decreasing
     ranks: Vec<usize>,
     matrix: Vec<Vec<bool>>,
     quads: Vec<usize>,
@@ -88,7 +88,7 @@ impl Hand {
 
 impl Hand {
     //analyze
-    pub fn evaluate(&self) -> (Value, Vec<Card>) {
+    pub fn evaluate(&self) -> Value {
         if let Some(result) = self.top_tier() {
             return result
         } else if let Some(result) = self.quad() {
@@ -97,27 +97,23 @@ impl Hand {
             return result
         } else if let Some(result) = self.full_house() {
             return result
-        }
-
+        } else if let Some(result) = self.three_of_kind() {
+            return result
+        } 
         
 
-        return (Value::HighCard(vec!()), vec![])
+        return Value::HighCard(vec!())
     } 
 
-    pub fn top_tier(&self) -> Option<(Value, Vec<Card>)> {
+    pub fn top_tier(&self) -> Option<Value> {
         for suit in 1..5 {
             match Self::straight_in_vec(&self.matrix[suit]) {
                 Ok(start) => {
-                    let mut cards = vec![];
-                    for i in 0..5 {
-                        let card = Card::from_tup(suit, start - i);
-                        cards.push(card);
-                    }
                     if start == 14 {
-                        return Some((Value::RoyalFlush, cards))
+                        return Some(Value::RoyalFlush)
                     } else {
                         let result = Value::StraightFlush(start);
-                        return Some((result, cards))
+                        return Some(result)
                     }
                 },
                 Err(()) => {},
@@ -126,28 +122,16 @@ impl Hand {
         None
     }
 
-    pub fn quad(&self) -> Option<(Value, Vec<Card>)> {
+    pub fn quad(&self) -> Option<Value> {
         //find fourOfKind
         if !self.quads.is_empty() {
             let quad_rank = self.quads[0];
-            let mut cards = vec![];
-            for i in 1..5 {
-                let card = Card::from_tup(i, quad_rank);
-                cards.push(card);
-            }
-            for c in &self.cards {
-                let c_local = c.clone();
-                if (c_local.rank.clone() as usize) != quad_rank {
-                    cards.push(c_local);
-                    break;
-                }
-            }
-            return Some((Value::FourOfKind(quad_rank), cards))
+            return Some(Value::FourOfKind(quad_rank))
         } 
         None
     }
 
-    pub fn full_house(&self) -> Option<(Value, Vec<Card>)> {
+    pub fn full_house(&self) -> Option<Value> {
         if self.trips.len() >= 1 && self.tuples.len() >= 2 {
             //there definitely is a full house:
             let high_trip = self.trips[0];
@@ -157,26 +141,13 @@ impl Hand {
                 self.tuples[0]
             };
 
-            let mut cards = vec![];
-            let mut count = 0;
-            for card in &self.cards {
-                let rank = card.rank.to_int();
-                if rank == high_trip || rank == tup {
-                    count += 1;
-                    cards.push(card.clone());
-                }
-                if count == 5 {
-                    break;
-                }
-            }
-
-            Some((Value::FullHouse(high_trip, tup), cards))
+            Some(Value::FullHouse(high_trip, tup))
         } else {
             None
         }
     }
 
-    pub fn flush(&self) -> Option<(Value, Vec<Card>)> {
+    pub fn flush(&self) -> Option<Value> {
         for i in 1..5 {
             //now it is bad that the aces are counted twice in the matrix
             let correction = if self.matrix[i][1] { 1 } else { 0 };
@@ -187,13 +158,14 @@ impl Hand {
 
                 //get the 5 highest cards of this color
                 for j in (2..15).rev() {
+                    assert!(j != 1);
                     let curr = self.matrix[i][j];
                     if curr {
-                        cards.push(Card::from_tup(i, j));
+                        cards.push(j);
                         count += 1;
                     }
                     if count >= 5 {
-                        return Some((Value::Flush(cards.clone()), cards))
+                        return Some(Value::Flush(cards))
                     }
                 }
             }
@@ -201,10 +173,57 @@ impl Hand {
         None
     }
 
-    pub fn three_of_kind(&self) -> Option<(Value, Vec<Card>)> {
-        unimplemented!()
+    pub fn three_of_kind(&self) -> Option<Value> {
+        if !self.trips.is_empty() {
+            let trip_rank = self.trips[0];
+            Some(Value::ThreeOfKind(trip_rank))
+        } else {
+            None
+        }
     }
 
+    pub fn two_pair(&self) -> Option<Value> {
+        if self.tuples.len() >= 2 {
+            let r1 = self.tuples[0];
+            let r2 = self.tuples[1];
+            let mut r3 = 0;
+            for card in self.cards {
+                let rank = card.rank_int();
+                if rank == r1 || rank == r2 {
+                    continue;
+                } else {
+                    r3 = rank;
+                }
+            }
+            Some(Value::TwoPair(r1, r2, r3))
+        } else {
+            None
+        }
+    }
+
+    pub fn pair(&self) -> Option<Value> {
+        if !self.tuples.is_empty() {
+            let r1 = self.tuples[0];
+            let mut rest = vec!();
+            let mut count = 0;
+            
+            for card in self.cards {
+                if count == 3 {
+                    break;
+                }
+                let rank = card.rank_int();
+                if rank == r1 {
+                    continue;
+                } else {
+                    rest.push(rank);
+                    count += 1;
+                }
+            }
+            Some(Value::Pair(r1, rest))
+        } else {
+            None
+        }
+    }
 
 
     fn straight_in_vec(v: &Vec<bool>) -> Result<usize, ()> {
@@ -229,7 +248,7 @@ impl Hand {
 }
 
 
-pub fn evaluate(h: &Vec<Card>, community: &Vec<Card>) -> (Value, Vec<Card>) {
+pub fn evaluate(h: &Vec<Card>, community: &Vec<Card>) -> Value {
     let hand = Hand::new_split(h, community);
     hand.evaluate()
 }

@@ -47,7 +47,11 @@ fn recognize_royal_flush() {
 
     let hand = Hand::new(cards);
     match hand.top_tier() {
-        Some((Value::RoyalFlush, _)) => {},
+        Some(Value::RoyalFlush) => {},
+        _ => panic!()
+    }
+    match hand.evaluate() {
+        Value::RoyalFlush => {},
         _ => panic!()
     }
 }
@@ -63,16 +67,16 @@ fn recognize_straight_flush() {
 
     let hand = Hand::new(cards);
     match hand.top_tier() {
-        Some((Value::StraightFlush(_), _)) => {},
+        Some(Value::StraightFlush(_)) => {},
         _ => panic!()
     }
     match hand.flush() {
-        Some((Value::Flush(_), _)) => {},
+        Some(Value::Flush(_)) => {},
         _ => panic!()
     }
 
     match hand.evaluate() {
-        (Value::StraightFlush(_), _) => {},
+        Value::StraightFlush(_) => {},
         _ => panic!()
     }
 }
