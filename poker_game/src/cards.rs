@@ -1,4 +1,5 @@
 use std::cmp::Ordering;
+use std::fmt;
 
 #[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone)]
 pub enum Rank {
@@ -33,14 +34,36 @@ impl Rank {
             12 => Rank::Queen,
             13 => Rank::King,
             14 => Rank::Ace,
-            _ => panic!(),
+            _ => panic!("not a valid number for a card-rank"),
         }
     }
+
     pub fn to_int(&self) -> usize {
         self.clone() as usize
     }
     pub fn to_vec() -> Vec<Rank> {
         (2..15).map(|x| Rank::from_int(x)).collect()
+    }
+
+}
+
+impl fmt::Display for Rank {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+           Rank::Two => write!(f, "2"),
+           Rank::Three => write!(f, "3"),
+           Rank::Four => write!(f, "4"),
+           Rank::Five => write!(f, "5"),
+           Rank::Six => write!(f, "6"),
+           Rank::Seven => write!(f, "7"),
+           Rank::Eight => write!(f, "8"),
+           Rank::Nine => write!(f, "9"),
+           Rank::Ten => write!(f, "10"),
+           Rank::Jack => write!(f, "J"),
+           Rank::Queen => write!(f, "Q"),
+           Rank::King => write!(f, "K"),
+           Rank::Ace => write!(f, "A"), 
+        }
     }
 }
 
@@ -67,6 +90,17 @@ impl Suit {
     }
     fn to_vec() -> Vec<Suit> {
         (1..5).map(Suit::from_int).collect()
+    }
+}
+
+impl fmt::Display for Suit {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Suit::Clubs => write!(f, "♣"),
+            Suit::Diamonds => write!(f, "♦"),
+            Suit::Hearts => write!(f, "♥"),
+            Suit::Spades => write!(f, "♠"),
+        }
     }
 }
 
@@ -122,5 +156,11 @@ impl Card {
 
     pub fn rank_int(&self) -> usize {
         self.rank.clone().to_int()
+    }
+}
+
+impl fmt::Display for Card {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}{}", self.rank, self.suit)
     }
 }
