@@ -1,4 +1,5 @@
 use crate::player::Player;
+use crate::pot::Pot;
 
 // this should give us an interface to go through the different stages of a game of poker. 
 // For now, games always start with a set of 2 - 10 players

@@ -6,6 +6,14 @@ pub struct Player {
 }
 
 impl Player {
+    pub fn new(id: PlayerId, name: String) -> Player {
+        Player {
+            id,
+            name,
+            balance: 0,
+        }
+    }
+
     pub fn bet(&mut self, amount: u32) {
         assert!(self.balance > amount);
         self.balance = self.balance - amount;
