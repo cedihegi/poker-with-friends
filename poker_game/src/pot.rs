@@ -20,7 +20,19 @@ impl Pot {
             min_unit: 1,
         }
     }   
-    
+    pub fn reset(&mut self) -> Result<(),&str>{
+        let sum: u32 = self.player_investments.values().sum();
+        assert!(sum == self.amount);
+        self.player_investments = HashMap::new();
+
+        if self.amount != 0 {
+            self.amount = 0;
+            Err(&"there was still money in the pot, but it was reset anyways")
+        } else {
+            Ok(())
+        }
+
+    } 
     pub fn invest(&mut self, amount: u32, player_id: PlayerId) {
         self.amount = self.amount + amount;
         let entry = self.player_investments.entry(player_id).or_insert(0);

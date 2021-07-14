@@ -5,3 +5,4 @@ pub mod hand_values;
 pub mod game;
 pub mod player;
 pub mod pot;
+pub mod table;

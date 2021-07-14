@@ -6,11 +6,11 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new(id: PlayerId, name: String) -> Player {
+    pub fn new(id: PlayerId, name: String, balance: u32) -> Player {
         Player {
             id,
             name,
-            balance: 0,
+            balance,
         }
     }
 

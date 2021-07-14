@@ -1,0 +1,29 @@
+what would the optimal interface for such a poker game look like?
+
+Game::new();
+starts a game.
+
+Game::register_player(..) -> Result<Player, Message>
+adds a new player to the round, returns Err() if there are already to many players,
+or something with the given information is wrong, or game started already
+(maybe there should be a "seating system")
+
+Game::start() -> no more new players allowed, now we wait for turns
+
+Game::next_move(player_id, move) -> Result<GameAction, >
+fails if the move is invalid (e.g. wrong player, calls wrong amount, ...)
+proceeds the gamestate by one. A game should internally have some state of a round, 
+
+enum Moves {
+    Check,
+    Call(amt),
+    Raise(amt),
+    Fold,
+}
+
+enum GameAction {
+    ShowNewCards(cards), 
+    GameOver(winners),
+    NextMove,
+}
+

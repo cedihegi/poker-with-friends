@@ -4,7 +4,7 @@ use poker_game::player::{PlayerId, Player};
 #[test]
 fn one_player_claims_full_pot() {
     let player_ids: Vec<PlayerId> = (1..5).collect();
-    let players: Vec<Player> = player_ids.into_iter().map(|x| Player::new(x, "name".to_string())).collect();
+    let players: Vec<Player> = player_ids.into_iter().map(|x| Player::new(x, "name".to_string(), 0)).collect();
     let mut pot = Pot::new(&players);
     for player in &players {
         let id = player.id;
@@ -33,7 +33,7 @@ fn one_player_claims_full_pot() {
 fn two_players_claim_uneqal() {
     println!("starting test two winners:");
     let player_ids: Vec<PlayerId> = (1..5).collect();
-    let players: Vec<Player> = player_ids.into_iter().map(|x| Player::new(x, "name".to_string())).collect();
+    let players: Vec<Player> = player_ids.into_iter().map(|x| Player::new(x, "name".to_string(), 0)).collect();
     let mut pot = Pot::new(&players);
     for player in &players {
         let id = player.id;
@@ -64,7 +64,7 @@ fn two_players_claim_uneqal() {
 #[test]
 pub fn winner_is_all_in() {
     let player_ids: Vec<PlayerId> = (1..5).collect();
-    let players: Vec<Player> = player_ids.into_iter().map(|x| Player::new(x, "name".to_string())).collect();
+    let players: Vec<Player> = player_ids.into_iter().map(|x| Player::new(x, "name".to_string(), 0)).collect();
     let mut pot = Pot::new(&players);
     for player in &players {
         let id = player.id;
